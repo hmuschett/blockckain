@@ -130,7 +130,7 @@ peers = set()
 
 # endpoint para enviar una nueva transaccion. Sera usado por nuestra 
 # aplicacion para anadir nuevos datos (posts) a la cadena de bloques
-@approute('/nueva_transaccion', methods=['POST'])
+@app.route('/nueva_transaccion', methods=['POST'])
 def nueva_transaccion():
     tx_data = request.get_json() 
     campos_obligatorios = ["autor", "contenido"]
@@ -149,7 +149,7 @@ def nueva_transaccion():
 # endpoint para devolver la copia del nodo de la cadena. 
 # Nuestra aplicacion usara este endpoint para consultar 
 # todos los mensajes a mostrar.
-@approute('/cadena', methods=['GET'])
+@app.route('/cadena', methods=['GET'])
 def obten_cadena():
     datos_cadena = [] 
     for bloque in blockchain.cadena:
@@ -163,7 +163,7 @@ def obten_cadena():
 # endpoint para solicitar al nodo que extraiga las 
 # transacciones no confirmadas (si las hay). Lo usaremos 
 # para iniciar una orden de minar desde nuestra propia aplicacion.
-@approute('/minar', methods=['GET'])
+@app.route('/minar', methods=['GET'])
 def minar_transacciones_no_confirmadas():
     resultado = blockchain.minar() 
     if not resultado:
@@ -178,7 +178,7 @@ def minar_transacciones_no_confirmadas():
 
 
 # endpoint para anadir nuevos peers a la red.
-@approute('/registrar_nodo', methods=['POST'])
+@app.route('/registrar_nodo', methods=['POST'])
 def registra_nuevos_peers():
     direccion = request.get_json()["direccion"] 
     if not direccion: return "Datos invalidos", 400
@@ -191,7 +191,7 @@ def registra_nuevos_peers():
     return obten_cadena()
 
 
-@approute('/registrarse_con', methods=['POST'])
+@app.route('/registrarse_con', methods=['POST'])
 def registrarse_con_nodo_existente():
     """
     Internamente llama al endpoint `registra_nodo` para 
@@ -244,7 +244,7 @@ def crear_cadena_desde_volcado(volcado_cadena):
 # endpoint para anadir un bloque extraido por otro a la 
 # cadena del nodo. El bloque es primero verificado por 
 # el nodo y luego se anade a la cadena.
-@approute('/aniade_bloque', methods=['POST'])
+@app.route('/aniade_bloque', methods=['POST'])
 def verifica_y_aniade_bloque():
    datos_bloque = request.get_json() 
    bloque = Bloque(datos_bloque["id"], 
@@ -263,7 +263,7 @@ def verifica_y_aniade_bloque():
 
 
 # endpoint para consultar las transacciones no confirmadas
-@approute('/pendientes_tx')
+@app.route('/pendientes_tx')
 def obten_pendientes_tx():
     return json.dumps(blockchain.transacciones_sin_confirmar)
 
