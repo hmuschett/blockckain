@@ -26,7 +26,6 @@ def obten_posts():
                 tx["id"] = bloque["id"] 
                 tx["hash"] = bloque["hash_previo"] 
                 contenido.append(tx)
-
         global posts 
         posts = sorted(contenido, key=lambda k: k['timestamp'], reverse=True)
 

@@ -48,8 +48,10 @@ class Blockchain:
         Una funcion que anade el bloque a la cadena despues de verificarlo.
         """
         hash_previo = self.ultimo_bloque.hash
+
         if hash_previo != bloque.hash_previo:
-             return False
+            return False
+
         if not Blockchain.es_valido(bloque, prueba): 
             return False
        
@@ -63,12 +65,14 @@ class Blockchain:
         Una funcion que prueba diferentes valores de nonce hasta
         obtener un hash que cumpla los requisitos.
         """
-        bloque.nonce= 0
-        hash_calculado= bloque.calcula_hash()
-        while not hash_calculado.startswith('0'* Blockchain.dificultad):
-            bloque.nonce+= 1
-            hash_calculado= bloque.calcula_hash()
-            return hash_calculado
+        bloque.nonce = 0
+
+        hash_calculado = bloque.calcula_hash()
+        while not hash_calculado.startswith('0' * Blockchain.dificultad):
+            bloque.nonce += 1
+            hash_calculado = bloque.calcula_hash()
+            
+        return hash_calculado
 
     def aniade_nueva_transaccion(self, transaccion):
         self.transacciones_sin_confirmar.append(transaccion)
@@ -86,9 +90,11 @@ class Blockchain:
     def comprueba_validez_cadena(cls, cadena):
         resultado = True 
         hash_previo = "0"
+
         for bloque in cadena:
-             hash_bloque = bloque.hash
-             delattr(bloque, "hash")
+            hash_bloque = bloque.hash
+            delattr(bloque, "hash")
+
             if not cls.es_valido(bloque, hash_bloque) or hash_previo != bloque.hash_previo:
                 resultado = False   
                 break
@@ -105,7 +111,9 @@ class Blockchain:
         """
         if not self.transacciones_sin_confirmar: 
             return False
+
         ultimo_bloque = self.ultimo_bloque
+
         nuevo_bloque = Bloque(id=ultimo_bloque.id + 1,
                                 transacciones=self.transacciones_sin_confirmar, 
                                 timestamp=time.time(),
@@ -172,16 +180,16 @@ def minar_transacciones_no_confirmadas():
         longitud_cadena = len(blockchain.cadena)
         consenso() 
         if longitud_cadena == len(blockchain.cadena): 
-            anunciar_nuevo_bloque(blockchain.ultimo_bloque)
-    
-    return "Se ha minado el Bloque #{}.".format(blockchain.ultimo_bloque.id)
+            anunciar_nuevo_bloque(blockchain.ultimo_bloque)    
+        return "Se ha minado el Bloque #{}.".format(blockchain.ultimo_bloque.id)
 
 
 # endpoint para anadir nuevos peers a la red.
 @app.route('/registrar_nodo', methods=['POST'])
 def registra_nuevos_peers():
     direccion = request.get_json()["direccion"] 
-    if not direccion: return "Datos invalidos", 400
+    if not direccion: 
+        return "Datos invalidos", 400
     
     # Anadimos el nodo a la lista de pares 
     peers.add(direccion)
@@ -224,11 +232,11 @@ def registrarse_con_nodo_existente():
 
 
 def crear_cadena_desde_volcado(volcado_cadena):
-   blockchain_generado = Blockchain() 
-   blockchain_generado.crea_bloque_genesis() 
-   for idx, datos_bloque in enumerate(volcado_cadena): 
-       if idx == 0: 
-           continue        # ignoramos el bloque genesis           
+    blockchain_generado = Blockchain() 
+    blockchain_generado.crea_bloque_genesis() 
+    for idx, datos_bloque in enumerate(volcado_cadena): 
+        if idx == 0:
+            continue       
         bloque = Bloque(datos_bloque["id"], 
                         datos_bloque["transacciones"], 
                         datos_bloque["timestamp"], 
@@ -240,14 +248,13 @@ def crear_cadena_desde_volcado(volcado_cadena):
             raise Exception("La cadena no es consistente!")
     return blockchain_generado
 
-
 # endpoint para anadir un bloque extraido por otro a la 
 # cadena del nodo. El bloque es primero verificado por 
 # el nodo y luego se anade a la cadena.
 @app.route('/aniade_bloque', methods=['POST'])
 def verifica_y_aniade_bloque():
-   datos_bloque = request.get_json() 
-   bloque = Bloque(datos_bloque["id"], 
+    datos_bloque = request.get_json() 
+    bloque = Bloque(datos_bloque["id"], 
                     datos_bloque["transacciones"], 
                     datos_bloque["timestamp"], 
                     datos_bloque["hash_previo"], 
